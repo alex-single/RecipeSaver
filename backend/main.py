@@ -7,4 +7,7 @@ from selenium.webdriver.chrome.options import Options
 import time
 import undetected_chromedriver as uc 
 #setup the driver
+url = 'https://www.walmart.com'
 
+
+print(domain)
