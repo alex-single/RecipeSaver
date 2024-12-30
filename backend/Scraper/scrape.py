@@ -44,19 +44,33 @@ def get_ingredients_from_url(url):
         recipeDetails = soup.find_all('ul', class_ = 'mm-recipes-structured-ingredients__list')
         ingredients = []
     
-    for item in recipeDetails:
-        list_items = item.find_all('li', class_='mm-recipes-structured-ingredients__list-item')
-        for list_item in list_items:
-            name = list_item.find('span', attrs={'data-ingredient-name': 'true'}).text.strip()
-            ingredients.append(name)
-            
-            #note to self ^^ strip after commas on the stupid shit
-            
+        for item in recipeDetails:
+            list_items = item.find_all('li', class_='mm-recipes-structured-ingredients__list-item')
+            for list_item in list_items:
+                name = list_item.find('span', attrs={'data-ingredient-name': 'true'}).text.strip()
+                ingredients.append(name)
+                
+                #note to self ^^ strip after commas on the stupid shit
+
+                
+        cleaned_ingredients = []
+        for ingredient in ingredients:
+            if ',' in ingredient:
+                clean_ingredient = ingredient.split(',')
+                cleaned_ingredients.append(clean_ingredient[0])
+            else:
+                cleaned_ingredients.append(ingredient)
+    
+    
+    
+    
         
-        print(ingredients)
-        
+    
+    return cleaned_ingredients  
+   
+    
 if __name__ == "__main__":
-    u = input("enter url")
+    u = input("Enter url: ")
     if u != None:
-        get_ingredients_from_url(u)
+        print(get_ingredients_from_url(u))
         
