@@ -49,6 +49,9 @@ def get_ingredients_from_url(url):
         for list_item in list_items:
             name = list_item.find('span', attrs={'data-ingredient-name': 'true'}).text.strip()
             ingredients.append(name)
+            
+            #note to self ^^ strip after commas on the stupid shit
+            
         
         print(ingredients)
         
