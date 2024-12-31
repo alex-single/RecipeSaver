@@ -8,7 +8,8 @@ import time
 import undetected_chromedriver as uc 
 from bs4 import BeautifulSoup as bs
 import requests
-
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 '''
 setup the driver
 driver = uc.Chrome()
@@ -63,11 +64,67 @@ def get_ingredients_from_url(url):
     
         
     
-    return cleaned_ingredients  
-   
+    return cleaned_ingredients 
+
+
+
+def get_store_names(zip):
+    url = f"https://www.google.com/maps/search/grocery+store+in+{zip}"
+    driver = webdriver.Chrome()  
+    driver.get(url)
     
-if __name__ == "__main__":
-    u = input("Enter url: ")
-    if u != None:
-        print(get_ingredients_from_url(u))
+    time.sleep(5)  
+    
+    stores = []
+    #doesnt work
+    scroll_pause_time = 3
+    max_attempts = 10
+    attempts = 0
+
+    # Identify the scrollable results panel on the left
+    scrollable_element = driver.find_element(By.XPATH, '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[1]/div[1]/div[1]')
+
+    while attempts < max_attempts:
+        elements = driver.find_elements(By.CLASS_NAME, 'hfpxzc')
+        for element in elements:
+            aria_label = element.get_attribute("aria-label")
+            if aria_label and aria_label not in stores:
+                stores.append(aria_label)
         
+        # Scroll down the results panel
+        driver.execute_script("arguments[0].scrollTop += 200;", scrollable_element)
+        time.sleep(scroll_pause_time)
+        
+        attempts += 1
+
+    driver.quit()
+    return stores
+    
+
+
+def scroll_left_panel(zip_code):
+    url = f"https://www.google.com/maps/search/grocery+store+in+{zip_code}"
+    driver = webdriver.Chrome()
+    driver.get(url)
+
+    try:
+        # Wait for the results panel to load
+        left_panel = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '//div[@role="feed"]'))
+        )
+
+        # Scroll the left panel
+        scroll_pause_time = 2
+        for i in range(20):  # Adjust range to control the number of scrolls
+            driver.execute_script("arguments[0].scrollTop += 300;", left_panel)
+            time.sleep(scroll_pause_time)
+
+        print("Scrolling complete.")
+
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        driver.quit()
+
+if __name__ == "__main__":
+    scroll_left_panel(36527)
