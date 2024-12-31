@@ -17,9 +17,6 @@ driver = uc.Chrome()
 headers = {"User-Agent": "Mozilla/5.0"}
 
 
-def ingredients_available(url):
-    pass
-
 
 def get_ingredients_from_url(url):
     

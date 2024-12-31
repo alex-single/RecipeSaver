@@ -1,5 +1,5 @@
-Selenium and Selenium webdrive manager
-undetected Chrome
-fakeuseragent
+selenium
+undetected-chromedriver
+beautifulsoup4
 requests
-lxml
+webdriver-manager

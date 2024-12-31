@@ -7,7 +7,8 @@ from selenium.webdriver.chrome.options import Options
 import time
 import undetected_chromedriver as uc 
 #setup the driver
-url = 'https://www.walmart.com'
+import scrape
+from scrape import get_ingredients_from_url, ingredients_available
 
-
-print(domain)
+if __name__ == "__main__":
+    pass
