@@ -73,68 +73,52 @@ def get_store_names(zip):
     driver = webdriver.Chrome()  
     driver.get(url)
     
-    time.sleep(5)  
+    time.sleep(3)  
     
-    stores = []
+    stores = set()
     #doesnt work
-    scroll_pause_time = 3
-    max_attempts = 10
-    attempts = 0
-
+    
+    left_panel = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//div[@role="feed"]')))
     # Identify the scrollable results panel on the left
-    scrollable_element = driver.find_element(By.XPATH, '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[1]/div[1]/div[1]')
 
-    while attempts < max_attempts:
+    for i in range(20):
         elements = driver.find_elements(By.CLASS_NAME, 'hfpxzc')
+        
+        
         for element in elements:
             aria_label = element.get_attribute("aria-label")
+            driver.execute_script("arguments[0].scrollTop += 100;", left_panel)
+            
             if aria_label and aria_label not in stores:
-                stores.append(aria_label)
-        
-        
-        left_panel = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//div[@role="feed"]'))
-        )
-
-        # Scroll the left panel
-        scroll_pause_time = 2
-        for i in range(20):  # Adjust range to control the number of scrolls
-            driver.execute_script("arguments[0].scrollTop += 500;", left_panel)
-            time.sleep(scroll_pause_time)
-
+                stores.add(aria_label)
             
             
-            attempts += 1
+        
+        
+        
     
             
     driver.quit()
     return stores
+
+def walmart_check():
+    url = f"https://www.walmart.com/account/login"
+    chrome_options = Options()
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")  
+    chrome_options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36")
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--profile-directory=Default")
+    chrome_options.add_argument("--disable-infobars")  
+    driver = uc.Chrome(options=chrome_options)
+    driver.execute_cdp_cmd('Network.enable', {})
+    driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"})
+    driver.get(url)
+    time.sleep(3)
+    driver.quit()
+
     
 
-
-def scroll_left_panel(zip_code):
-    url = f"https://www.google.com/maps/search/grocery+store+in+{zip_code}"
-    driver = webdriver.Chrome()
-    driver.get(url)
-
-    try:
-        # Wait for the results panel to load
-        left_panel = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//div[@role="feed"]'))
-        )
-
-        # Scroll the left panel
-        scroll_pause_time = 2
-        for i in range(20):  # Adjust range to control the number of scrolls
-            driver.execute_script("arguments[0].scrollTop += 300;", left_panel)
-            time.sleep(scroll_pause_time)
-
-        print("Scrolling complete.")
-
-    except Exception as e:
-        print(f"Error: {e}")
-    finally:
-        driver.quit()
-
 if __name__ == "__main__":
-    scroll_left_panel(36527)
+    walmart_check()
