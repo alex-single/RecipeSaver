@@ -91,12 +91,22 @@ def get_store_names(zip):
             if aria_label and aria_label not in stores:
                 stores.append(aria_label)
         
-        # Scroll down the results panel
-        driver.execute_script("arguments[0].scrollTop += 200;", scrollable_element)
-        time.sleep(scroll_pause_time)
         
-        attempts += 1
+        left_panel = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '//div[@role="feed"]'))
+        )
 
+        # Scroll the left panel
+        scroll_pause_time = 2
+        for i in range(20):  # Adjust range to control the number of scrolls
+            driver.execute_script("arguments[0].scrollTop += 500;", left_panel)
+            time.sleep(scroll_pause_time)
+
+            
+            
+            attempts += 1
+    
+            
     driver.quit()
     return stores
     
