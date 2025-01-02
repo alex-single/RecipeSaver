@@ -163,15 +163,32 @@ def walmart_items(ingredients, zip):
     driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"})
     driver.get(url)
     time.sleep(5)
+    
+    #put in zip
     but1 = driver.find_element(By.XPATH, '/html/body/div/div[1]/span/header/section/div/div/div[1]/button/div')
     but1.click()
     time.sleep(.5)
     but2 = driver.find_element(By.XPATH, '/html/body/div/div[1]/span/header/section/div/div/div[2]/section/div/div/div/div[1]/div/div[2]/div/div/button')
     but2.click()
     time.sleep(2)
+    
+            
+        
     areaSearch = driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/div[1]/div/div[2]/div/div/div[2]/div[1]/div[2]/div[1]/div/div/input')
+    for i in range(6):areaSearch.send_keys(Keys.BACK_SPACE)
     human_typing(areaSearch, zip)
-    time.sleep(5)
+    time.sleep(3)
+    save_but1 = driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/div[1]/div/div[3]/div/button')
+    save_but1.click()
+    time.sleep(2)
+    search_bar = driver.find_element(By.XPATH, '/html/body/div/div[1]/span/header/form/div/input')
+    time.sleep(2)
+    for ingredient in ingredients:
+        pass
+    
+    
     driver.quit()
+
+
 if __name__ == "__main__":
     walmart_items("a", '36527')
