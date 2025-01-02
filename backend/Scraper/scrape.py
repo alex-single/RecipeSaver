@@ -10,12 +10,19 @@ from bs4 import BeautifulSoup as bs
 import requests
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import random
 '''
 setup the driver
 driver = uc.Chrome()
 
 '''
 headers = {"User-Agent": "Mozilla/5.0"}
+
+publix = False
+walmart = False
+kroger = False
+wholeFoods = False
+aldi = False
 
 
 
@@ -93,7 +100,14 @@ def get_store_names(zip):
                 stores.add(aria_label)
             
             
-        
+    
+    global publix, walmart, kroger, wholeFoods, aldi
+    publix = any("Publix" in store for store in stores)
+    walmart = any("Walmart" in store for store in stores)
+    kroger = any("Kroger" in store for store in stores)
+    wholeFoods = any("Whole Foods" in store for store in stores)
+    aldi = any("ALDI" in store for store in stores)
+            
         
         
     
@@ -101,7 +115,14 @@ def get_store_names(zip):
     driver.quit()
     return stores
 
-def walmart_check():
+def human_typing(element, text):
+        for char in text:
+            element.send_keys(char)
+            time.sleep(random.uniform(.125, .3))
+
+
+#
+def walmart_login(user, password):
     url = f"https://www.walmart.com/account/login"
     chrome_options = Options()
     chrome_options.add_argument("--no-sandbox")
@@ -116,9 +137,41 @@ def walmart_check():
     driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"})
     driver.get(url)
     time.sleep(3)
-    driver.quit()
-
     
+    email_box = driver.find_element(By.NAME, "Email Address")
+    human_typing(email_box, user)
+    email_box.send_keys(Keys.RETURN)
+    time.sleep(1)
+    
+    pass_box = driver.find_element(By.XPATH, '/html/body/div/div[1]/section/form/div[1]/div/input')
+    human_typing(pass_box, password)
+    pass_box.send_keys(Keys.RETURN)
+    time.sleep(30)
 
+def walmart_items(ingredients, zip):
+    url = f"https://www.walmart.com"
+    chrome_options = Options()
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")  
+    chrome_options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36")
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--profile-directory=Default")
+    chrome_options.add_argument("--disable-infobars")  
+    driver = uc.Chrome(options=chrome_options)
+    driver.execute_cdp_cmd('Network.enable', {})
+    driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"})
+    driver.get(url)
+    time.sleep(5)
+    but1 = driver.find_element(By.XPATH, '/html/body/div/div[1]/span/header/section/div/div/div[1]/button/div')
+    but1.click()
+    time.sleep(.5)
+    but2 = driver.find_element(By.XPATH, '/html/body/div/div[1]/span/header/section/div/div/div[2]/section/div/div/div/div[1]/div/div[2]/div/div/button')
+    but2.click()
+    time.sleep(2)
+    areaSearch = driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/div[1]/div/div[2]/div/div/div[2]/div[1]/div[2]/div[1]/div/div/input')
+    human_typing(areaSearch, zip)
+    time.sleep(5)
+    driver.quit()
 if __name__ == "__main__":
-    walmart_check()
+    walmart_items("a", '36527')
