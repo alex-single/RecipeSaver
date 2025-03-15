@@ -214,7 +214,7 @@ def publix_items(ingredients, zip):
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--profile-directory=Default")
     chrome_options.add_argument("--disable-infobars")  
-    #chrome_options.add_argument("--headless")  # Enable headless mode
+   # chrome_options.add_argument("--headless")  # Enable headless mode
     driver = uc.Chrome(options=chrome_options)
     driver.execute_cdp_cmd('Network.enable', {})
     driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"})
@@ -228,6 +228,7 @@ def publix_items(ingredients, zip):
             'origin': 'https://www.publix.com',
             'permissions': []
         })
+        
         driver.execute_cdp_cmd('Browser.setPermission', {
             'origin': 'https://www.publix.com',
             'permission': {'name': 'geolocation'},
@@ -307,6 +308,9 @@ def publix_items(ingredients, zip):
     searchbar = wait.until(EC.presence_of_element_located((By.ID, "search-bar-input")))
     # Dictionary to store ingredient prices
     ingredient_prices = {}
+    storechoice = []
+    
+    
     
     for i in range(len(ingredients)):
         # Wait for search bar to be clickable
@@ -325,9 +329,22 @@ def publix_items(ingredients, zip):
         # Clear the searchbar using JavaScript
         driver.execute_script("arguments[0].value = '';", searchbar)
         
+        
         # Wait for page to load and get results
         page_source = driver.page_source
         soup = bs(page_source, 'html.parser')
+        
+        
+        
+        
+        
+        
+        soup.find()
+        
+        
+        
+        #####################################################
+        
         
         # Find all price spans
         item_info = soup.find_all('span', class_='screen-reader-only')
@@ -336,6 +353,7 @@ def publix_items(ingredients, zip):
         try:
             for _ in range(min(5, len(item_info))):  # Take either 5 or all available items
                 price_spans.append(item_info[_])
+                
         except IndexError:
             print(f"Found fewer than 5 results for {ingredients[i]}")
             
@@ -358,6 +376,26 @@ def publix_items(ingredients, zip):
                     continue
         
         # Store prices for this ingredient (only if we found any)
+        store_choice_prices = []
+    
+    try:
+        # Find all elements with store choice text
+        store_items = soup.find_all('span', class_='e-ul5tuv')
+        
+        for item in store_items:
+            # Find the closest price span (screen-reader-only) to this store choice item
+            price_span = item.find_next('span', class_='screen-reader-only')
+            if price_span and 'Current price:' in price_span.text:
+                try:
+                    price_str = price_span.text.replace('Current price: $', '')
+                    price_str = price_str.split()[0]
+                    price = float(price_str)
+                    store_choice_prices.append(price)
+                except (ValueError, IndexError):
+                    continue
+    except Exception as e:
+        print(f"Error finding store choice prices: {e}")
+       
         if prices:
             ingredient_prices[ingredients[i]] = prices
             print(f"Prices for {ingredients[i]}: {prices}")
@@ -383,7 +421,18 @@ def publix_items(ingredients, zip):
     
     # Print the DataFrame
     
-    # Optionally save to CSV
+    total = 0  # Initialize total to 0
+    for price in storechoice:
+        total += price  # Add each price directly from storechoice list
+    print(f"Total price: ${total:.2f}")  # Print formatted total
+    
+    # Find all store choice items
+   
+    
+    print("\nStore Choice Prices:")
+    print(store_choice_prices)  # Will print something like [4.99, 3.99, 5.99]
+    
+    return store_choice_prices
 
 if __name__ == "__main__":
    publix_items(get_ingredients_from_url(input("ENTER URL: ")), "36527")
